@@ -1,0 +1,25 @@
+services:
+  docker:
+    image: docker:dind
+    privileged: true
+
+pipeline:
+  build:
+    image: docker
+    environment:
+       - DOCKER_HOST=tcp://docker:2375
+    commands:
+       - docker build -t devbuild:arch arch/
+       - docker build -t devbuild:debian debian/
+
+  test:
+    image: docker
+    environment:
+       - DOCKER_HOST=tcp://docker:2375
+    commands:
+      - docker run --name=DEV-arch -d devbuild:arch
+      - docker run --name=DEV-debian -d devbuild:debian
+      - sleep 5
+      - docker exec DEV-arch systemctl status
+      - docker exec DEV-debian systemctl status
+      - docker kill $(docker ps -q)
