@@ -9,8 +9,7 @@ pipeline:
     environment:
        - DOCKER_HOST=tcp://docker:2375
     commands:
-       - docker build -t devbuild:arch arch/
-       - docker build -t devbuild:debian debian/
+        - find . -wholename '*/Dockerfile' -exec sh -c 'n="$(dirname {} | sed "s|^./||g")"; docker build -t frebib/systemd:$n $n/' \;
 
   test:
     image: docker
