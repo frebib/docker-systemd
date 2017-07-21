@@ -9,9 +9,7 @@ pipeline:
     environment:
       - DOCKER_HOST=tcp://docker:2375
     commands:
-      - apk --no-cache add coreutils
-      - find . -wholename '*/Dockerfile' | xargs -n1 dirname | sed 's#^./##g' > builds
-      - for n in $(cat builds); do docker build -t frebib/systemd:$n $n/; done
+      - docker build -t frebib/systemd:$IMAGE $IMAGE/
 
   test:
     image: docker
@@ -20,9 +18,16 @@ pipeline:
       - COMPOSE_VERSION=1.14.0
     commands:
       - apk --no-cache add curl
-      - curl -OL /usr/local/bin/ https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m`
+      - curl -L https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
       - chmod +x /usr/local/bin/docker-compose
-      - for n in $(cat builds); do docker-compose up -d $n; sleep 8; docker exec $n systemctl status; done
+      - docker-compose up -d $IMAGE
+      - sleep 4
+      - docker exec $IMAGE systemctl status
       - docker-compose down
+
+matrix:
+  IMAGE:
+    - arch
+    - debian
 
 # vim: sw=2 et
