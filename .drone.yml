@@ -17,8 +17,11 @@ pipeline:
     image: docker
     environment:
       - DOCKER_HOST=tcp://docker:2375
+      - COMPOSE_VERSION=1.14.0
     commands:
-      - for n in $(cat builds); do docker run --name=$n -d frebib/systemd:$n; sleep 5; docker exec $n systemctl status; done
-      - docker kill $(docker ps -q)
+      - wget -O /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-Linux-x86_64
+      - chmod +x /usr/local/bin/docker-compose
+      - for n in $(cat builds); do docker-compose up -d $n; sleep 8; docker exec $n systemctl status; done
+      - docker-compose down
 
 # vim: sw=2 et
