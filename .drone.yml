@@ -19,7 +19,8 @@ pipeline:
       - DOCKER_HOST=tcp://docker:2375
       - COMPOSE_VERSION=1.14.0
     commands:
-      - wget -O /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-Linux-x86_64
+      - apk --no-cache add curl
+      - curl -OL /usr/local/bin/ https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m`
       - chmod +x /usr/local/bin/docker-compose
       - for n in $(cat builds); do docker-compose up -d $n; sleep 8; docker exec $n systemctl status; done
       - docker-compose down
