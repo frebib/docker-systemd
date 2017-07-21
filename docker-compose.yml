@@ -3,6 +3,7 @@ version: "3.1"
 services:
   debian:
     image: frebib/systemd:debian
+    container_name: debian
     restart: always
     build: ./debian
     tty: true
@@ -17,6 +18,7 @@ services:
 
   arch:
     image: frebib/systemd:arch
+    container_name: arch
     restart: always
     build: ./arch
     tty: true
