@@ -18,6 +18,7 @@ pipeline:
     commands:
       - docker-compose up -d $IMAGE
       - sleep 4
+      - docker logs $IMAGE
       - docker exec $IMAGE systemctl status
       - docker-compose down
 
