@@ -7,18 +7,18 @@ pipeline:
   build:
     image: docker
     environment:
-       - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_HOST=tcp://docker:2375
     commands:
-        - find . -wholename '*/Dockerfile' -exec sh -c 'n="$(dirname {} | sed "s|^./||g")"; docker build -t frebib/systemd:$n $n/' \;
+      - apk --no-cache add coreutils
+      - find . -wholename '*/Dockerfile' | xargs -n1 dirname | sed 's#^./##g' > builds
+      - for n in $(cat builds); do docker build -t frebib/systemd:$n $n/; done
 
   test:
     image: docker
     environment:
-       - DOCKER_HOST=tcp://docker:2375
+      - DOCKER_HOST=tcp://docker:2375
     commands:
-      - docker run --name=DEV-arch -d devbuild:arch
-      - docker run --name=DEV-debian -d devbuild:debian
-      - sleep 5
-      - docker exec DEV-arch systemctl status
-      - docker exec DEV-debian systemctl status
+      - for n in $(cat builds); do docker run --name=$n -d frebib/systemd:$n; sleep 5; docker exec $n systemctl status; done
       - docker kill $(docker ps -q)
+
+# vim: sw=2 et
