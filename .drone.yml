@@ -12,14 +12,10 @@ pipeline:
       - docker build -t frebib/systemd:$IMAGE $IMAGE/
 
   test:
-    image: docker
+    image: tmaier/docker-compose
     environment:
       - DOCKER_HOST=tcp://docker:2375
-      - COMPOSE_VERSION=1.14.0
     commands:
-      - apk --no-cache add curl
-      - curl -L https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-      - chmod +x /usr/local/bin/docker-compose
       - docker-compose up -d $IMAGE
       - sleep 4
       - docker exec $IMAGE systemctl status
